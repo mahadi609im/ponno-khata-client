@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&display=swap');
+@import 'tailwindcss';
+
+:root {
+  /* Base Colors (Light Theme) */
+  --color-base-100: #ffffff;
+  --color-base-200: #f8fafc;
+  --color-base-300: #f1f5f9;
+
+  --color-base-content: #111827;
+  --color-text-muted: #6b7280;
+  --color-border-light: #e5e7eb;
+  --color-shadow: rgb(15 23 42 / 0.08);
+
+  /* Brand Colors (Orange) */
+  --color-primary: #f97316;
+  --color-secondary: #ea580c;
+  --color-accent: #ffedd5;
+
+  /* Status Colors */
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+}
+
+[data-theme='dark'] {
+  /* Premium Dark Background */
+  --color-base-100: #0f172a;
+  --color-base-200: #1e293b;
+  --color-base-300: #334155;
+
+  /* Light Text */
+  --color-base-content: #f8fafc;
+  --color-text-muted: #94a3b8;
+
+  /* Subtle Border */
+  --color-border-light: #334155;
+
+  --color-shadow: rgb(0 0 0 / 0.35);
+
+  /* Orange Brand */
+  --color-primary: #f97316;
+  --color-secondary: #ea580c;
+  --color-accent: #ffedd5;
+
+  /* Status Colors */
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+}
+
+/* স্লাইডারের জন্য হিডেন স্ক্রলবার */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+img {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-base-content);
+}
+
+body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  color: white;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #0a0d10;
+}
+
+.customContainer {
+  @apply container mx-auto;
+}
+
+@keyframes custom-loading {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+.animate-step-1 {
+  animation: custom-loading 1.5s infinite 0s;
+}
+.animate-step-2 {
+  animation: custom-loading 1.5s infinite 0.5s;
+}
+.animate-step-3 {
+  animation: custom-loading 1.5s infinite 1s;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-base-100);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-base-content);
+  }
+}
+/* Custom minimal scrollbar for unique sidebar look */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-base-300);
+  border-radius: 10px;
+}
