@@ -6,6 +6,12 @@ const ProductCard = ({ product }) => {
     useDeleteProduct();
 
   const handleDelete = async () => {
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete "${product.name}"?`,
+    );
+
+    if (!isConfirmed) return;
+
     try {
       await deleteProduct({
         id: product._id,
@@ -38,7 +44,7 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug">
+          <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug min-w-0 flex-1">
             {product.name}
           </h3>
 

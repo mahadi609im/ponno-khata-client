@@ -6,6 +6,12 @@ const ProductListItem = ({ product }) => {
     useDeleteProduct();
 
   const handleDelete = async () => {
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete "${product.name}"?`,
+    );
+
+    if (!isConfirmed) return;
+
     try {
       await deleteProduct({
         id: product._id,
@@ -20,7 +26,7 @@ const ProductListItem = ({ product }) => {
   return (
     <div className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-4 hover:border-(--color-primary)/50 transition-all group">
       {/* Left Section: Image and Info */}
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1">
         <div className="w-14 h-14 bg-(--color-base-300)/50 rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
           {product.image ? (
             <img
@@ -35,8 +41,8 @@ const ProductListItem = ({ product }) => {
           )}
         </div>
 
-        <div>
-          <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug truncate">
             {product.name}
           </h3>
           <p className="text-xs md:text-sm text-(--color-text-muted) mt-0.5 font-normal">
@@ -49,7 +55,7 @@ const ProductListItem = ({ product }) => {
       </div>
 
       {/* Right Section: Sell Range & Delete Button */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 shrink-0">
         <div className="text-right shrink-0">
           <span className="text-xs text-(--color-text-muted) block font-normal">
             Sell Range
