@@ -42,7 +42,7 @@ const LoginPage = () => {
 
       {/* শপ নেম ও সাবটাইটেল */}
       <h1 className="text-xl font-bold text-(--color-base-content) mb-1">
-        Mahadi Shop
+        Assalamu-Alaikum
       </h1>
       <p className="text-xs text-(--color-text-muted) mb-6">
         Enter your security PIN to access dashboard
