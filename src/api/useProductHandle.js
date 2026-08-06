@@ -54,7 +54,7 @@ export const useCreateProduct = () => {
     },
 
     onSuccess: (data, variables) => {
-      // FormData হলে সরাসরি variables থেকে মান পেতে সমস্যা হতে পারে, তাই দুইভাবেই হ্যান্ডেল করা হলো
+      // FormData হলে সরাসরি variables থেকে মান পেতে সমস্যা হতে পারে
       const categoryId =
         variables instanceof FormData
           ? variables.get('categoryId')
@@ -65,18 +65,41 @@ export const useCreateProduct = () => {
           ? variables.get('shopId')
           : variables.shopId;
 
+      // Single Category Products
       if (categoryId) {
-        queryClient.invalidateQueries({ queryKey: ['products', categoryId] });
-        queryClient.refetchQueries({ queryKey: ['products', categoryId] });
+        queryClient.invalidateQueries({
+          queryKey: ['products', categoryId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['products', categoryId],
+        });
       }
 
+      // Shop Products
       if (shopId) {
-        queryClient.invalidateQueries({ queryKey: ['products-shop', shopId] });
-        queryClient.refetchQueries({ queryKey: ['products-shop', shopId] });
+        queryClient.invalidateQueries({
+          queryKey: ['products-shop', shopId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['products-shop', shopId],
+        });
+
+        // Grouped Products (All Categories)
+        queryClient.invalidateQueries({
+          queryKey: ['grouped-products', shopId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['grouped-products', shopId],
+        });
       }
 
-      // ব্যাকআপ হিসেবে জেনেরিক কুয়েরি রিলোড
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Backup
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
     },
 
     onError: error => {
@@ -85,6 +108,22 @@ export const useCreateProduct = () => {
         error.response?.data || error.message,
       );
     },
+  });
+};
+
+export const useGroupedProducts = shopId => {
+  const axiosSecure = useAxiosSecure();
+
+  return useQuery({
+    queryKey: ['grouped-products', shopId],
+
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(`/api/products/grouped/${shopId}`);
+
+      return data.groupedProducts;
+    },
+
+    enabled: !!shopId,
   });
 };
 
@@ -103,17 +142,41 @@ export const useDeleteProduct = () => {
     onSuccess: (_, variables) => {
       const { categoryId, shopId } = variables;
 
+      // Single Category Products
       if (categoryId) {
-        queryClient.invalidateQueries({ queryKey: ['products', categoryId] });
-        queryClient.refetchQueries({ queryKey: ['products', categoryId] });
+        queryClient.invalidateQueries({
+          queryKey: ['products', categoryId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['products', categoryId],
+        });
       }
 
+      // Shop Products
       if (shopId) {
-        queryClient.invalidateQueries({ queryKey: ['products-shop', shopId] });
-        queryClient.refetchQueries({ queryKey: ['products-shop', shopId] });
+        queryClient.invalidateQueries({
+          queryKey: ['products-shop', shopId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['products-shop', shopId],
+        });
+
+        // Grouped Products (All Categories)
+        queryClient.invalidateQueries({
+          queryKey: ['grouped-products', shopId],
+        });
+
+        queryClient.refetchQueries({
+          queryKey: ['grouped-products', shopId],
+        });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Backup
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
     },
 
     onError: error => {

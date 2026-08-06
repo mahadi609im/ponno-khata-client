@@ -1,11 +1,11 @@
 import { createContext, useEffect, useState } from 'react';
-import { useShopEnterHandle } from '../api/useShopEnterHandle';
+import { useShopEnterHandle, useShopRegister } from '../api/useShopEnterHandle';
 import {
   useCategories,
   useCreateCategory,
-  useUpdateCategory,
   useDeleteCategory,
 } from '../api/useCategoryHandle';
+import { useGroupedProducts } from '../api/useProductHandle';
 
 const Context = createContext();
 
@@ -39,11 +39,20 @@ const ContextProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
+  // --- Active Category (Default: 'all') ---
+  const [activeCategory, setActiveCategory] = useState('all');
+
   const {
     mutateAsync: shopEnter,
     isPending: shopEnterPending,
     isError: shopEnterError,
   } = useShopEnterHandle(setShop);
+
+  const {
+    mutateAsync: shopRegister,
+    isPending: shopRegisterPending,
+    isError: shopRegisterError,
+  } = useShopRegister(setShop);
 
   // --- Categories ---
   const {
@@ -55,8 +64,8 @@ const ContextProvider = ({ children }) => {
   const { mutateAsync: createCategory, isPending: createCategoryPending } =
     useCreateCategory();
 
-  const { mutateAsync: updateCategory, isPending: updateCategoryPending } =
-    useUpdateCategory();
+  const { data: groupedProducts = [], isLoading: groupedProductsLoading } =
+    useGroupedProducts(shop?._id);
 
   const { mutateAsync: deleteCategory, isPending: deleteCategoryPending } =
     useDeleteCategory();
@@ -75,6 +84,13 @@ const ContextProvider = ({ children }) => {
     shopEnter,
     shopEnterPending,
     shopEnterError,
+    shopRegister,
+    shopRegisterPending,
+    shopRegisterError,
+
+    // Active Category State
+    activeCategory,
+    setActiveCategory,
 
     // Categories
     categories,
@@ -82,8 +98,8 @@ const ContextProvider = ({ children }) => {
     categoriesError,
     createCategory,
     createCategoryPending,
-    updateCategory,
-    updateCategoryPending,
+    groupedProducts,
+    groupedProductsLoading,
     deleteCategory,
     deleteCategoryPending,
   };

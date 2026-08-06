@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Outlet, useLocation, Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MdOutlineFirstPage, MdLastPage } from 'react-icons/md';
@@ -21,19 +21,13 @@ const MainLayout = () => {
     shop,
     categories = [],
     categoriesLoading,
+    groupedProducts,
+    groupedProductsLoading,
+    activeCategory,
+    setActiveCategory,
   } = useContext(Context);
 
   const isDarkMode = theme === 'dark';
-
-  // activeCategory এর ইনিশিয়াল স্টেট null রাখা হলো, যাতে ডাটা আসার পর প্রথমটি সেট করা যায়
-  const [activeCategory, setActiveCategory] = useState(null);
-
-  // ক্যাটাগরি ডাটা ফেচ হওয়ার পর প্রথম ক্যাটাগরি অটোমেটিক সিলেক্ট করার লজিক
-  useEffect(() => {
-    if (!activeCategory && categories.length > 0) {
-      setActiveCategory(categories[0]._id);
-    }
-  }, [categories, activeCategory]);
 
   const handleLogout = () => {
     localStorage.removeItem('shop');
@@ -120,8 +114,10 @@ const MainLayout = () => {
                   shop,
                   categories,
                   categoriesLoading,
-                  isProductModalOpen, // ৩. স্টেট পাস করা হলো
-                  setIsProductModalOpen, // ৪. ফাংশন পাস করা হলো
+                  groupedProducts,
+                  groupedProductsLoading,
+                  isProductModalOpen,
+                  setIsProductModalOpen,
                 }}
               />
             </motion.div>

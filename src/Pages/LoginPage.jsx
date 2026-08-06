@@ -78,7 +78,7 @@ const LoginPage = () => {
       <p className="text-xs text-(--color-text-muted) mt-6 text-center">
         Don't have a shop?{' '}
         <Link
-          to="/create-shop"
+          to="/auth/register"
           className="font-semibold text-(--color-primary) hover:underline"
         >
           Create shop

@@ -1,6 +1,32 @@
 import { useMutation } from '@tanstack/react-query';
 import useAxiosSecure from '../hooks/useAxiosSecure';
 
+export const useShopRegister = setShop => {
+  const axiosSecure = useAxiosSecure();
+
+  return useMutation({
+    mutationFn: async shopData => {
+      const { data } = await axiosSecure.post('/api/shops/register', shopData);
+      return data;
+    },
+
+    onSuccess: data => {
+      if (setShop) {
+        setShop(data.shop);
+      }
+
+      console.log('Shop Registered Successfully:', data);
+    },
+
+    onError: error => {
+      console.error(
+        'Registration Error:',
+        error.response?.data || error.message,
+      );
+    },
+  });
+};
+
 export const useShopEnterHandle = setShop => {
   const axiosSecure = useAxiosSecure();
 

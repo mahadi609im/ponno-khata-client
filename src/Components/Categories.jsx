@@ -10,7 +10,7 @@ import { Context } from '../Context/ContextProvider';
 
 const Categories = ({
   setIsSidebarOpen,
-  activeCategory,
+  activeCategory = 'all',
   setActiveCategory,
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -59,6 +59,7 @@ const Categories = ({
       console.error('Action failed:', error);
     }
   };
+
   const startEdit = category => {
     setEditingId(category._id);
     setNewCategoryName(category.name);
@@ -77,8 +78,7 @@ const Categories = ({
       }
 
       if (activeCategory === id && setActiveCategory) {
-        const remaining = categories.filter(cat => cat._id !== id);
-        setActiveCategory(remaining.length ? remaining[0]._id : null);
+        setActiveCategory('all');
       }
     } catch (error) {
       console.error('Delete failed:', error);
@@ -147,77 +147,88 @@ const Categories = ({
               Categories List
             </h3>
 
-            {categories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 px-4 text-center border border-dashed border-(--color-border-light) rounded-2xl">
-                <p className="text-sm font-medium text-(--color-text-muted)">
-                  No categories found
-                </p>
-                <p className="text-xs text-(--color-text-muted)/70 mt-1">
-                  Add your first category using the form above.
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1">
-                {categories.map(category => {
-                  const isSelected = activeCategory === category._id;
+            <div className="flex flex-col gap-1">
+              {/* All Products Virtual Category */}
+              <button
+                type="button"
+                onClick={() => handleCategoryClick('all')}
+                className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between cursor-pointer group ${
+                  activeCategory === 'all'
+                    ? 'text-(--color-primary) font-semibold'
+                    : 'text-(--color-base-content)'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      activeCategory === 'all'
+                        ? 'bg-(--color-primary)'
+                        : 'bg-(--color-text-muted)/40'
+                    }`}
+                  />
+                  <span>All Products</span>
+                </div>
+              </button>
 
-                  return (
-                    <button
-                      key={category._id}
-                      type="button"
-                      onClick={() => handleCategoryClick(category._id)}
-                      className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between cursor-pointer group ${
-                        isSelected
-                          ? 'text-(--color-primary) font-semibold'
-                          : 'text-(--color-base-content)'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-2 h-2 rounded-full transition-colors ${
-                            isSelected
-                              ? 'bg-(--color-primary)'
-                              : 'bg-(--color-text-muted)/40 group-hover:bg-(--color-primary)/60'
-                          }`}
-                        ></span>
-                        <span>{category.name}</span>
-                      </div>
+              {categories.map(category => {
+                const isSelected = activeCategory === category._id;
 
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span
-                          onClick={e => {
-                            e.stopPropagation();
-                            startEdit(category);
-                          }}
-                          className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'text-(--color-primary) hover:bg-(--color-primary)/10'
-                              : 'text-(--color-text-muted) hover:text-(--color-primary)'
-                          }`}
-                          title="Edit"
-                        >
-                          <PiPencilSimpleBold size={15} />
-                        </span>
-                        <span
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleDelete(category._id);
-                          }}
-                          className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'text-(--color-error) hover:bg-(--color-error)/10'
-                              : 'text-(--color-text-muted) hover:text-(--color-error)'
-                          }`}
-                          title="Delete"
-                        >
-                          <PiTrashBold size={15} />
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                return (
+                  <button
+                    key={category._id}
+                    type="button"
+                    onClick={() => handleCategoryClick(category._id)}
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between cursor-pointer group ${
+                      isSelected
+                        ? 'text-(--color-primary) font-semibold'
+                        : 'text-(--color-base-content)'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          isSelected
+                            ? 'bg-(--color-primary)'
+                            : 'bg-(--color-text-muted)/40 group-hover:bg-(--color-primary)/60'
+                        }`}
+                      ></span>
+                      <span>{category.name}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span
+                        onClick={e => {
+                          e.stopPropagation();
+                          startEdit(category);
+                        }}
+                        className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'text-(--color-primary) hover:bg-(--color-primary)/10'
+                            : 'text-(--color-text-muted) hover:text-(--color-primary)'
+                        }`}
+                        title="Edit"
+                      >
+                        <PiPencilSimpleBold size={15} />
+                      </span>
+                      <span
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleDelete(category._id);
+                        }}
+                        className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'text-(--color-error) hover:bg-(--color-error)/10'
+                            : 'text-(--color-text-muted) hover:text-(--color-error)'
+                        }`}
+                        title="Delete"
+                      >
+                        <PiTrashBold size={15} />
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </>
       )}
