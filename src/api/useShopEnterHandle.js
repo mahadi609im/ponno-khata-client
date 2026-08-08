@@ -14,8 +14,6 @@ export const useShopRegister = setShop => {
       if (setShop) {
         setShop(data.shop);
       }
-
-      console.log('Shop Registered Successfully:', data);
     },
 
     onError: error => {
@@ -41,7 +39,6 @@ export const useShopEnterHandle = setShop => {
       if (setShop) {
         setShop(data);
       }
-      console.log('Shop Login Successful:', data);
     },
 
     onError: error => {

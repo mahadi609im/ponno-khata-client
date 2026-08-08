@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router';
 import { Context } from '../Context/ContextProvider';
 
 const LoginPage = () => {
-  const [pin, setPin] = useState('');
+  const [keyInput, setKeyInput] = useState('MS Electronics');
+  const [pin, setPin] = useState('0000');
   const navigate = useNavigate();
 
   const { shopEnter, shopEnterPending, setShop } = useContext(Context);
@@ -12,7 +13,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const data = await shopEnter({ pin });
+      const data = await shopEnter({ pin, key: keyInput });
 
       if (!data.success) {
         return;
@@ -26,7 +27,7 @@ const LoginPage = () => {
       navigate('/');
     } catch (error) {
       console.error(error);
-      alert('Invalid PIN');
+      alert('Invalid Shop Name/Key or PIN');
     }
   };
 
@@ -49,8 +50,18 @@ const LoginPage = () => {
       </p>
 
       {/* লগইন ফর্ম */}
-      <form onSubmit={handleLogin} className="w-full space-y-5">
-        {/* অটো ফোকাসসহ বড় পিন ইনপুট বক্স */}
+      <form onSubmit={handleLogin} className="w-full space-y-4">
+        <div>
+          <input
+            type="text"
+            required
+            value={keyInput}
+            onChange={e => setKeyInput(e.target.value)}
+            placeholder="Shop Name or Access Key"
+            className="w-full h-11 px-4 text-xs font-medium bg-(--color-base-100) rounded-xl text-(--color-primary) outline-none transition-all placeholder:text-(--color-text-muted)/50"
+          />
+        </div>
+
         <div>
           <input
             type="password"
@@ -74,7 +85,7 @@ const LoginPage = () => {
         </button>
       </form>
 
-      {/* শপ না থাকলে ক্রিয়েট করার লিংক */}
+      {/* শপ না থাকলে ক্রিয়েট করার লিংক */}
       <p className="text-xs text-(--color-text-muted) mt-6 text-center">
         Don't have a shop?{' '}
         <Link

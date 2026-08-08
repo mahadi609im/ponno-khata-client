@@ -4,6 +4,7 @@ import {
   PiPencilSimpleBold,
   PiCheckBold,
   PiTrashBold,
+  PiSpinnerBold,
 } from 'react-icons/pi';
 import { X } from 'lucide-react';
 import { Context } from '../Context/ContextProvider';
@@ -15,17 +16,31 @@ const Categories = ({
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editingId, setEditingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const {
     shop,
     categories = [],
     categoriesLoading: sidebarLoading,
     createCategory,
+    createCategoryPending,
     updateCategory,
+    updateCategoryPending,
     deleteCategory,
+    deleteCategoryPending,
   } = useContext(Context);
 
   const handleAction = async () => {
+    // সিকিউরিটি কি ভেরিফিকেশন
+    const secretKey = prompt('Please enter the secret key to proceed:');
+
+    if (!secretKey) return;
+
+    if (secretKey !== shop?.key) {
+      alert('Error: Invalid secret key!');
+      return;
+    }
+
     const categoryName = newCategoryName?.trim();
 
     if (!categoryName) {
@@ -66,7 +81,18 @@ const Categories = ({
   };
 
   const handleDelete = async id => {
+    // ডিলিট করার জন্য সিকিউরিটি কি ভেরিফিকেশন
+    const secretKey = prompt('Please enter the secret key to delete:');
+
+    if (!secretKey) return;
+
+    if (secretKey !== shop?.key) {
+      alert('Error: Invalid secret key!');
+      return;
+    }
+
     try {
+      setDeletingId(id);
       await deleteCategory({
         id,
         shopId: shop._id,
@@ -82,6 +108,8 @@ const Categories = ({
       }
     } catch (error) {
       console.error('Delete failed:', error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -93,6 +121,11 @@ const Categories = ({
       setIsSidebarOpen?.(false);
     }
   };
+
+  // Check if current action is pending
+  const isActionPending = editingId
+    ? updateCategoryPending
+    : createCategoryPending;
 
   return (
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
@@ -122,21 +155,33 @@ const Categories = ({
                 placeholder="Category Name (e.g. Light, Switch)..."
                 value={newCategoryName}
                 onChange={e => setNewCategoryName(e.target.value)}
+                disabled={isActionPending}
               />
               <button
                 onClick={handleAction}
+                disabled={isActionPending}
                 className={`w-full p-3 rounded-xl font-bold flex items-center justify-center gap-2 text-sm border cursor-pointer transition-all ${
                   editingId
                     ? 'bg-(--color-success)/10 border-(--color-success)/30 text-(--color-success) hover:bg-(--color-success)/20'
-                    : 'bg-(--color-primary) border-transparent text-white shadow-lg shadow-(--color-primary)/20 hover:opacity-90'
-                }`}
+                    : 'bg-(--color-primary) border-transparent text-white shadow-lg shadow-(--color-primary)/20 hover:opacity-95'
+                } ${isActionPending ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {editingId ? (
+                {isActionPending ? (
+                  <PiSpinnerBold size={16} className="animate-spin" />
+                ) : editingId ? (
                   <PiCheckBold size={16} />
                 ) : (
                   <PiPlusBold size={16} />
                 )}
-                <span>{editingId ? 'Update Category' : 'Add Category'}</span>
+                <span>
+                  {isActionPending
+                    ? editingId
+                      ? 'Updating...'
+                      : 'Adding...'
+                    : editingId
+                      ? 'Update Category'
+                      : 'Add Category'}
+                </span>
               </button>
             </div>
           </div>
@@ -172,6 +217,9 @@ const Categories = ({
 
               {categories.map(category => {
                 const isSelected = activeCategory === category._id;
+                const isThisDeleting =
+                  deletingId === category._id &&
+                  (deleteCategoryPending ?? true);
 
                 return (
                   <button
@@ -213,16 +261,23 @@ const Categories = ({
                       <span
                         onClick={e => {
                           e.stopPropagation();
-                          handleDelete(category._id);
+                          if (!isThisDeleting) handleDelete(category._id);
                         }}
                         className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
                           isSelected
                             ? 'text-(--color-error) hover:bg-(--color-error)/10'
                             : 'text-(--color-text-muted) hover:text-(--color-error)'
-                        }`}
+                        } ${isThisDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         title="Delete"
                       >
-                        <PiTrashBold size={15} />
+                        {isThisDeleting ? (
+                          <PiSpinnerBold
+                            size={15}
+                            className="animate-spin text-(--color-error)"
+                          />
+                        ) : (
+                          <PiTrashBold size={15} />
+                        )}
                       </span>
                     </div>
                   </button>

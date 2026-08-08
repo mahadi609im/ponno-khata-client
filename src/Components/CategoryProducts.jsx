@@ -9,6 +9,7 @@ const CategoryProducts = () => {
   const context = useOutletContext() || {};
   const {
     activeCategory,
+    shop,
     categories = [],
     categoriesLoading,
     setIsProductModalOpen,
@@ -28,6 +29,21 @@ const CategoryProducts = () => {
   const currentCategoryName = currentCategory
     ? currentCategory.name
     : 'Category Products';
+
+  const handleAddProduct = () => {
+    const accessKey = prompt('Enter Access Key');
+
+    console.log(shop);
+
+    if (!accessKey) return;
+
+    if (accessKey !== shop?.key) {
+      alert('Invalid Access Key');
+      return;
+    }
+
+    setIsProductModalOpen && setIsProductModalOpen(true);
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesCategory =
@@ -104,9 +120,7 @@ const CategoryProducts = () => {
 
             {/* Add Product Action Button */}
             <button
-              onClick={() =>
-                setIsProductModalOpen && setIsProductModalOpen(true)
-              }
+              onClick={handleAddProduct}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-(--color-primary) text-white text-xs font-semibold rounded-xl hover:opacity-95 transition-all shadow-md shadow-(--color-primary)/20 cursor-pointer shrink-0"
               title="Add New Product"
             >

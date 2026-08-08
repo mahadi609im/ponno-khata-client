@@ -4,6 +4,7 @@ import {
   useCategories,
   useCreateCategory,
   useDeleteCategory,
+  useUpdateCategory,
 } from '../api/useCategoryHandle';
 import { useGroupedProducts } from '../api/useProductHandle';
 
@@ -61,6 +62,13 @@ const ContextProvider = ({ children }) => {
     error: categoriesError,
   } = useCategories(shop?._id);
 
+  // --- Update Category ---
+  const {
+    mutateAsync: updateCategory,
+    isPending: updateCategoryPending,
+    isError: updateCategoryError,
+  } = useUpdateCategory();
+
   const { mutateAsync: createCategory, isPending: createCategoryPending } =
     useCreateCategory();
 
@@ -100,6 +108,9 @@ const ContextProvider = ({ children }) => {
     createCategoryPending,
     groupedProducts,
     groupedProductsLoading,
+    updateCategory,
+    updateCategoryPending,
+    updateCategoryError,
     deleteCategory,
     deleteCategoryPending,
   };

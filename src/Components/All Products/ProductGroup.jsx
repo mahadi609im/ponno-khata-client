@@ -21,7 +21,7 @@ const ProductGroup = ({ item, viewMode, onManage }) => {
         {onManage && (
           <button
             onClick={() => onManage(item.category._id)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-(--color-base-200) hover:bg-(--color-primary) hover:text-white transition-all duration-300 cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-(--color-primary) hover:bg-(--color-primary) text-white transition-all duration-300 cursor-pointer"
           >
             <FolderOpen size={16} />
             <span className="text-xs font-medium">Manage</span>

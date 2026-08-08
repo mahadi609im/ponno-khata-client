@@ -1,16 +1,19 @@
 import { Package, Trash2 } from 'lucide-react';
 import { useDeleteProduct } from '../api/useProductHandle';
+import { useContext } from 'react';
+import { Context } from '../Context/ContextProvider';
 
 const ProductCard = ({ product }) => {
   const { mutateAsync: deleteProduct, isPending: deleting } =
     useDeleteProduct();
+  const { shop } = useContext(Context);
 
   const handleDelete = async () => {
     const accessKey = prompt('Enter Access Key');
 
     if (!accessKey) return;
 
-    if (accessKey !== 'A0') {
+    if (accessKey !== shop?.key) {
       alert('Invalid Access Key');
       return;
     }
