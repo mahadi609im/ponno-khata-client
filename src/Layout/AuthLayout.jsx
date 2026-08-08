@@ -1,20 +1,13 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router';
+import { Outlet, Link, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContext } from 'react';
-import { Sun, Moon, LogOut } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { Context } from '../Context/ContextProvider';
 
 const AuthLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(Context);
   const isDarkMode = theme === 'dark';
-
-  const handleLogout = () => {
-    localStorage.removeItem('isShopLoggedIn');
-    localStorage.removeItem('shopId');
-    navigate('/auth/login');
-  };
 
   return (
     <div className="h-dvh w-screen bg-(--color-base-100) flex flex-col overflow-hidden font-sans">
@@ -36,15 +29,6 @@ const AuthLayout = () => {
             title="Toggle Theme"
           >
             {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-
-          {/* Logout / Exit Icon Button */}
-          <button
-            onClick={handleLogout}
-            className="p-2.5 bg-(--color-error)/10 border border-(--color-error)/20 rounded-xl text-(--color-error) hover:bg-(--color-error)/20 transition-all cursor-pointer"
-            title="Exit / Logout"
-          >
-            <LogOut size={18} />
           </button>
         </div>
       </header>
