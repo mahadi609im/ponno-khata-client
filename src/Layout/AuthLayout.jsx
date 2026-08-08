@@ -22,9 +22,6 @@ const AuthLayout = () => {
       <header className="h-18 shrink-0 bg-(--color-base-200)/30 backdrop-blur-3xl border-b border-(--color-border-light) flex items-center justify-between px-4 md:px-6 shadow-[0_8px_30px_var(--color-shadow)] z-10">
         {/* Brand / Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-(--color-primary)/10 text-(--color-primary) flex items-center justify-center font-bold text-lg">
-            P
-          </div>
           <h1 className="font-bold text-lg md:text-xl text-(--color-base-content)">
             Ponno Khata
           </h1>
