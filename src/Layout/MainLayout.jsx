@@ -125,13 +125,13 @@ const MainLayout = () => {
         </main>
       </div>
 
-      {/* ৩. Product Add Modal Component এখানে রেন্ডার করা হলো */}
       <AddProductModal
         isOpen={isProductModalOpen}
         onClose={() => setIsProductModalOpen(false)}
         activeCategory={activeCategory}
         categories={categories}
         shopId={shop?._id}
+        shop={shop}
       />
     </div>
   );

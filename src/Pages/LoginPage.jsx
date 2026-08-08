@@ -1,10 +1,12 @@
 import { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Context } from '../Context/ContextProvider';
+// যদি আইকন ব্যবহার করতে চান, যেমন Lucide React থেকে (ঐচ্ছিক):
+// import { Sparkles } from 'lucide-react';
 
 const LoginPage = () => {
-  const [keyInput, setKeyInput] = useState('MS Electronics');
-  const [pin, setPin] = useState('0000');
+  const [keyInput, setKeyInput] = useState('');
+  const [pin, setPin] = useState('');
   const navigate = useNavigate();
 
   const { shopEnter, shopEnterPending, setShop } = useContext(Context);
@@ -31,8 +33,38 @@ const LoginPage = () => {
     }
   };
 
+  // টেস্ট ডাটা অটো-ফিল করার ফাংশন
+  const handleFillDemoData = () => {
+    setKeyInput('MS Electronics');
+    setPin('0000');
+  };
+
   return (
-    <div className="w-full max-w-md bg-(--color-base-100) border border-(--color-border-light) rounded-3xl p-8 shadow-sm flex flex-col items-center">
+    <div className="w-full max-w-md bg-(--color-base-100) border border-(--color-border-light) rounded-3xl p-8 shadow-sm flex flex-col items-center relative">
+      {/* নতুন ডিজাইনের বাটন */}
+      <button
+        type="button"
+        onClick={handleFillDemoData}
+        title="Fill Demo Data"
+        className="absolute top-4 right-4 group flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-(--color-primary) bg-(--color-primary)/10 hover:bg-(--color-primary) hover:text-white rounded-full transition-all duration-200 border border-(--color-primary)/20 hover:border-transparent shadow-xs active:scale-95 cursor-pointer"
+      >
+        {/* কি (Key) আইকন */}
+        <svg
+          className="w-3.5 h-3.5 transition-transform group-hover:rotate-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 18H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 1 1 21 9z"
+          />
+        </svg>
+        <span>Autofill</span>
+      </button>
+
       <div className="w-44 h-44 mb-4 flex items-center justify-center">
         <img
           src="/loginImgs.svg"

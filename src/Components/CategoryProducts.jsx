@@ -9,7 +9,6 @@ const CategoryProducts = () => {
   const context = useOutletContext() || {};
   const {
     activeCategory,
-    shop,
     categories = [],
     categoriesLoading,
     setIsProductModalOpen,
@@ -31,17 +30,6 @@ const CategoryProducts = () => {
     : 'Category Products';
 
   const handleAddProduct = () => {
-    const accessKey = prompt('Enter Access Key');
-
-    console.log(shop);
-
-    if (!accessKey) return;
-
-    if (accessKey !== shop?.key) {
-      alert('Invalid Access Key');
-      return;
-    }
-
     setIsProductModalOpen && setIsProductModalOpen(true);
   };
 
