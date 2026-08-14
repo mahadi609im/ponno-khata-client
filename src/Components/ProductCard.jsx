@@ -97,12 +97,19 @@ const ProductCard = ({ product }) => {
               </div>
             )}
           </div>
-
           {/* Product Name & Info Button */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug min-w-0 flex-1">
-              {product.name}
-            </h3>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug">
+                {product.name}
+              </h3>
+
+              {product.note && (
+                <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5">
+                  &quot;{product.note}&quot;
+                </p>
+              )}
+            </div>
 
             <button
               onClick={handleInfoClick}
