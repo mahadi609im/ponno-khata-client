@@ -1,0 +1,18 @@
+import { Trash2 } from 'lucide-react';
+
+  const { mutateAsync: deleteProduct, isPending: deleting } =
+    useDeleteProduct();
+    
+  const handleDeleteClick = () => {
+    setIsAccessModalOpen(true);
+  };
+
+{/* Direct Delete Button */}
+            {/* <button
+              onClick={handleDeleteClick}
+              disabled={deleting}
+              className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer disabled:opacity-50 shrink-0"
+              title="Delete Product"
+            >
+              <Trash2 size={16} />
+            </button> */}

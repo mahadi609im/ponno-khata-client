@@ -1,36 +1,78 @@
 import { useState, useContext } from 'react';
-import { Package, Trash2 } from 'lucide-react';
-import { useDeleteProduct } from '../api/useProductHandle';
+import { Package, Info } from 'lucide-react';
+import { useDeleteProduct, useUpdateProduct } from '../api/useProductHandle';
 import { Context } from '../Context/ContextProvider';
 import AccessKeyModal from './AccessKeyModal';
+import ProductDetailsModal from './ProductDetailsModal';
 
 const ProductCard = ({ product }) => {
-  const { mutateAsync: deleteProduct, isPending: deleting } =
-    useDeleteProduct();
+  const { mutateAsync: deleteProduct } = useDeleteProduct();
+  const { mutateAsync: updateProduct } = useUpdateProduct();
   const { shop } = useContext(Context);
 
-  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDeleteClick = () => {
-    setIsAccessModalOpen(true);
+  // কোন অ্যাকশনের জন্য মডাল ওপেন হবে ('delete' অথবা 'edit')
+  const [modalType, setModalType] = useState(null);
+  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+  const [pendingUpdateData, setPendingUpdateData] = useState(null);
+
+  const handleInfoClick = () => {
+    setIsModalOpen(true);
   };
 
+  // ডিলিট বাটনে ক্লিক করলে
+  const handleDeleteClickFromModal = () => {
+    setIsModalOpen(false); // ডিটেইলস মডাল বন্ধ হবে
+    setModalType('delete');
+    setIsAccessModalOpen(true); // এক্সেস কি মডাল ওপেন হবে
+  };
+
+  // এডিট করার জন্য Save Changes এ ক্লিক করলে
+  const handleEditClickFromModal = formData => {
+    setIsModalOpen(false); // ডিটেইলস মডাল বন্ধ হবে
+    setPendingUpdateData(formData);
+    setModalType('edit');
+    setIsAccessModalOpen(true); // এক্সেস কি মডাল ওপেন হবে
+  };
+
+  // AccessKeyModal থেকে পাস করা Key ভেরিফাই করে কাজ সম্পন্ন করা
   const handleVerifyAccess = async accessKey => {
-    if (accessKey !== shop?.key) {
+    const correctKey = shop?.key || shop?.accessKey;
+
+    if (accessKey !== correctKey) {
       alert('Invalid Access Key');
       return false;
     }
 
     try {
-      await deleteProduct({
-        id: product._id,
-        categoryId: product.categoryId?._id || product.categoryId,
-        shopId: product.shopId,
-        key: accessKey,
-      });
+      if (modalType === 'delete') {
+        await deleteProduct({
+          id: product._id,
+          categoryId: product.categoryId?._id || product.categoryId,
+          shopId: product.shopId,
+          key: accessKey,
+        });
+      } else if (modalType === 'edit' && pendingUpdateData) {
+        const updatePayload = {
+          name: pendingUpdateData.name,
+          buyPrice: Number(pendingUpdateData.buyPrice),
+          minSellPrice: Number(pendingUpdateData.minSellPrice),
+          maxSellPrice: Number(pendingUpdateData.maxSellPrice),
+          note: pendingUpdateData.note,
+          categoryId: product.categoryId?._id || product.categoryId,
+          shopId: product.shopId?._id || product.shopId,
+        };
+
+        await updateProduct({
+          id: product._id,
+          updateData: updatePayload,
+        });
+      }
       return true;
     } catch (error) {
-      console.error('Failed to delete product:', error);
+      console.error('Failed to process request:', error);
+      alert(error.response?.data?.message || 'Operation failed');
       return false;
     }
   };
@@ -56,19 +98,18 @@ const ProductCard = ({ product }) => {
             )}
           </div>
 
-          {/* নামের পাশে ডিলিট বাটন */}
+          {/* Product Name & Info Button */}
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug min-w-0 flex-1">
               {product.name}
             </h3>
-            {/* Direct Delete Button */}
+
             <button
-              onClick={handleDeleteClick}
-              disabled={deleting}
-              className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer disabled:opacity-50 shrink-0"
-              title="Delete Product"
+              onClick={handleInfoClick}
+              className="p-2 rounded-xl bg-(--color-primary)/10 hover:bg-(--color-primary) text-(--color-primary) hover:text-(--color-base-100) transition-all cursor-pointer disabled:opacity-50 shrink-0"
+              title="Product info"
             >
-              <Trash2 size={16} />
+              <Info size={16} />
             </button>
           </div>
         </div>
@@ -93,13 +134,26 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      {/* Access Key Modal */}
+      {/* Product Details Modal */}
+      <ProductDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        product={product}
+        onDeleteClick={handleDeleteClickFromModal}
+        onSaveEdit={handleEditClickFromModal}
+      />
+
+      {/* Access Key Modal for Delete/Edit */}
       <AccessKeyModal
         isOpen={isAccessModalOpen}
-        onClose={() => setIsAccessModalOpen(false)}
+        onClose={() => {
+          setIsAccessModalOpen(false);
+          setPendingUpdateData(null);
+          setModalType(null);
+        }}
         onVerify={handleVerifyAccess}
-        title="Delete Product"
-        subtitle="Enter your access key to delete this product"
+        title={modalType === 'delete' ? 'Delete Product' : 'Update Product'}
+        subtitle={`Enter your access key to ${modalType === 'delete' ? 'delete this product' : 'save changes'}`}
       />
     </>
   );

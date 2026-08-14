@@ -111,6 +111,86 @@ export const useCreateProduct = () => {
   });
 };
 
+// Update Product
+export const useUpdateProduct = () => {
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updateData }) => {
+      // যদি ইমেজসহ বা শুধু ডেটা পাঠানো হয় (FormData বা সাধারণ Object)
+      const isFormData = updateData instanceof FormData;
+
+      const { data } = await axiosSecure.patch(
+        `/api/products/${id}`,
+        updateData,
+        {
+          headers: {
+            'Content-Type': isFormData
+              ? 'multipart/form-data'
+              : 'application/json',
+          },
+        },
+      );
+
+      return data;
+    },
+
+    onSuccess: (data, variables) => {
+      const { updateData } = variables;
+
+      const categoryId =
+        updateData instanceof FormData
+          ? updateData.get('categoryId')
+          : updateData.categoryId;
+
+      const shopId =
+        updateData instanceof FormData
+          ? updateData.get('shopId')
+          : updateData.shopId;
+
+      // Single Category Products
+      if (categoryId) {
+        queryClient.invalidateQueries({
+          queryKey: ['products', categoryId],
+        });
+        queryClient.refetchQueries({
+          queryKey: ['products', categoryId],
+        });
+      }
+
+      // Shop Products & Grouped Products
+      if (shopId) {
+        queryClient.invalidateQueries({
+          queryKey: ['products-shop', shopId],
+        });
+        queryClient.refetchQueries({
+          queryKey: ['products-shop', shopId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['grouped-products', shopId],
+        });
+        queryClient.refetchQueries({
+          queryKey: ['grouped-products', shopId],
+        });
+      }
+
+      // Backup
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
+    },
+
+    onError: error => {
+      console.error(
+        'Update Product Error:',
+        error.response?.data || error.message,
+      );
+    },
+  });
+};
+
 export const useGroupedProducts = shopId => {
   const axiosSecure = useAxiosSecure();
 
