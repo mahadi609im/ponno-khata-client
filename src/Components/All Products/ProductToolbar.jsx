@@ -29,7 +29,7 @@ const ProductToolbar = ({
 
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search by name or category..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full lg:w-52 pl-9 pr-3 py-2 lg:py-1.5 bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-xs text-(--color-base-content) outline-none focus:border-(--color-primary) transition-all shadow-inner"

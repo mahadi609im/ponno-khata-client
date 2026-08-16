@@ -7,8 +7,6 @@ const HomePage = () => {
   const context = useOutletContext() || {};
   const { activeCategory } = context;
 
-  console.log(activeCategory);
-
   return activeCategory === 'all' ? <AllProducts /> : <CategoryProducts />;
 };
 

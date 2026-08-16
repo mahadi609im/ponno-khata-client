@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Package, Info } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { useDeleteProduct, useUpdateProduct } from '../api/useProductHandle';
 import { Context } from '../Context/ContextProvider';
 import AccessKeyModal from './AccessKeyModal';
@@ -11,23 +11,21 @@ const ProductListItem = ({ product }) => {
   const { shop } = useContext(Context);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(null); // 'delete' অথবা 'edit'
+  const [modalType, setModalType] = useState(null);
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [pendingUpdateData, setPendingUpdateData] = useState(null);
 
   const handleInfoClick = e => {
-    e.stopPropagation(); // কার্ডের মূল ক্লিকের সাথে কনফ্লিক্ট এড়াতে
+    e.stopPropagation();
     setIsModalOpen(true);
   };
 
-  // ডিটেইলস মডাল থেকে ডিলিট বাটনে ক্লিক করলে
   const handleDeleteClickFromModal = () => {
     setIsModalOpen(false);
     setModalType('delete');
     setIsAccessModalOpen(true);
   };
 
-  // ডিটেইলস মডাল থেকে এডিট করার পর Save Changes এ ক্লিক করলে
   const handleEditClickFromModal = formData => {
     setIsModalOpen(false);
     setPendingUpdateData(formData);
@@ -35,7 +33,6 @@ const ProductListItem = ({ product }) => {
     setIsAccessModalOpen(true);
   };
 
-  // এক্সেস কি ভেরিফাই করে কাজ সম্পন্ন করা
   const handleVerifyAccess = async accessKey => {
     const correctKey = shop?.key || shop?.accessKey;
 
@@ -59,6 +56,7 @@ const ProductListItem = ({ product }) => {
           minSellPrice: Number(pendingUpdateData.minSellPrice),
           maxSellPrice: Number(pendingUpdateData.maxSellPrice),
           note: pendingUpdateData.note,
+          stock: pendingUpdateData.stock || '',
           categoryId: product.categoryId?._id || product.categoryId,
           shopId: product.shopId?._id || product.shopId,
         };
@@ -76,10 +74,14 @@ const ProductListItem = ({ product }) => {
     }
   };
 
+  const stockCount = product.stock;
+
   return (
     <>
-      <div className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-4 hover:border-(--color-primary)/50 transition-all group ">
-        {/* Left Section: Image and Info */}
+      <div
+        onClick={handleInfoClick}
+        className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-4 hover:border-(--color-primary)/50 transition-all group cursor-pointer"
+      >
         <div className="flex items-center gap-3.5 min-w-0 flex-1">
           <div className="w-14 h-14 bg-(--color-base-300)/50 rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
             {product.image ? (
@@ -96,11 +98,25 @@ const ProductListItem = ({ product }) => {
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug truncate">
-              {product.name}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug truncate">
+                {product.name}
+              </h3>
 
-            {/* Note preview */}
+              {/* স্টকের ব্যাজটি ইমেজের বদলে এখন নামের পাশে বসানো হয়েছে */}
+              {stockCount && (
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white shrink-0 ${
+                    Number(stockCount) < 3
+                      ? 'bg-(--color-error) animate-pulse'
+                      : 'bg-(--color-primary)'
+                  }`}
+                >
+                  Stock: {stockCount}
+                </span>
+              )}
+            </div>
+
             {product.note && (
               <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5 max-w-2xs">
                 &quot;{product.note}&quot;
@@ -116,29 +132,16 @@ const ProductListItem = ({ product }) => {
           </div>
         </div>
 
-        {/* Right Section: Sell Range & Info Button */}
-        <div className="flex items-center gap-4 shrink-0">
-          <div className="text-right shrink-0">
-            <span className="text-xs text-(--color-text-muted) block font-normal">
-              Sell Range
-            </span>
-            <span className="font-medium text-xs md:text-sm text-(--color-primary)">
-              ৳{product.minSellPrice} - ৳{product.maxSellPrice}
-            </span>
-          </div>
-
-          {/* Info Button */}
-          <button
-            onClick={handleInfoClick}
-            className="p-2 rounded-xl bg-(--color-primary)/10 hover:bg-(--color-primary) text-(--color-primary) hover:text-(--color-base-100) transition-all cursor-pointer shrink-0"
-            title="Product info"
-          >
-            <Info size={16} />
-          </button>
+        <div className="text-right shrink-0">
+          <span className="text-xs text-(--color-text-muted) block font-normal">
+            Sell Range
+          </span>
+          <span className="font-medium text-xs md:text-sm text-(--color-primary)">
+            ৳{product.minSellPrice} - ৳{product.maxSellPrice}
+          </span>
         </div>
       </div>
 
-      {/* Product Details Modal */}
       <ProductDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -147,7 +150,6 @@ const ProductListItem = ({ product }) => {
         onSaveEdit={handleEditClickFromModal}
       />
 
-      {/* Access Key Modal for Delete/Edit */}
       <AccessKeyModal
         isOpen={isAccessModalOpen}
         onClose={() => {
@@ -157,7 +159,9 @@ const ProductListItem = ({ product }) => {
         }}
         onVerify={handleVerifyAccess}
         title={modalType === 'delete' ? 'Delete Product' : 'Update Product'}
-        subtitle={`Enter your access key to ${modalType === 'delete' ? 'delete this product' : 'save changes'}`}
+        subtitle={`Enter your access key to ${
+          modalType === 'delete' ? 'delete this product' : 'save changes'
+        }`}
       />
     </>
   );

@@ -1,6 +1,8 @@
 import { Package } from 'lucide-react';
 
 const AllProductListItem = ({ product }) => {
+  const stockCount = product.stock;
+
   return (
     <div className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-4 hover:border-(--color-primary)/50 transition-all group">
       {/* Left Section: Image and Info */}
@@ -20,9 +22,34 @@ const AllProductListItem = ({ product }) => {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug truncate">
-            {product.name}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-sm md:text-base text-(--color-base-content) leading-snug truncate">
+              {product.name}
+            </h3>
+
+            {/* স্টকের ব্যাজটি ইমেজের বদলে নামের পাশে বসানো হয়েছে */}
+            {stockCount !== undefined &&
+              stockCount !== null &&
+              stockCount !== '' && (
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white shrink-0 ${
+                    Number(stockCount) < 3
+                      ? 'bg-(--color-error) animate-pulse'
+                      : 'bg-(--color-primary)'
+                  }`}
+                >
+                  Stock: {stockCount}
+                </span>
+              )}
+          </div>
+
+          {/* Product Note (যদি নোট থাকে তবেই দেখাবে) */}
+          {product.note && (
+            <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5 max-w-2xs">
+              &quot;{product.note}&quot;
+            </p>
+          )}
+
           <p className="text-xs md:text-sm text-(--color-text-muted) mt-0.5 font-normal">
             Buy:{' '}
             <span className="font-medium text-(--color-base-content)">

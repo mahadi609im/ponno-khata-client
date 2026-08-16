@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Package, Info } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { useDeleteProduct, useUpdateProduct } from '../api/useProductHandle';
 import { Context } from '../Context/ContextProvider';
 import AccessKeyModal from './AccessKeyModal';
@@ -11,8 +11,6 @@ const ProductCard = ({ product }) => {
   const { shop } = useContext(Context);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // কোন অ্যাকশনের জন্য মডাল ওপেন হবে ('delete' অথবা 'edit')
   const [modalType, setModalType] = useState(null);
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [pendingUpdateData, setPendingUpdateData] = useState(null);
@@ -21,22 +19,19 @@ const ProductCard = ({ product }) => {
     setIsModalOpen(true);
   };
 
-  // ডিলিট বাটনে ক্লিক করলে
   const handleDeleteClickFromModal = () => {
-    setIsModalOpen(false); // ডিটেইলস মডাল বন্ধ হবে
+    setIsModalOpen(false);
     setModalType('delete');
-    setIsAccessModalOpen(true); // এক্সেস কি মডাল ওপেন হবে
+    setIsAccessModalOpen(true);
   };
 
-  // এডিট করার জন্য Save Changes এ ক্লিক করলে
   const handleEditClickFromModal = formData => {
-    setIsModalOpen(false); // ডিটেইলস মডাল বন্ধ হবে
+    setIsModalOpen(false);
     setPendingUpdateData(formData);
     setModalType('edit');
-    setIsAccessModalOpen(true); // এক্সেস কি মডাল ওপেন হবে
+    setIsAccessModalOpen(true);
   };
 
-  // AccessKeyModal থেকে পাস করা Key ভেরিফাই করে কাজ সম্পন্ন করা
   const handleVerifyAccess = async accessKey => {
     const correctKey = shop?.key || shop?.accessKey;
 
@@ -60,6 +55,7 @@ const ProductCard = ({ product }) => {
           minSellPrice: Number(pendingUpdateData.minSellPrice),
           maxSellPrice: Number(pendingUpdateData.maxSellPrice),
           note: pendingUpdateData.note,
+          stock: pendingUpdateData.stock || '',
           categoryId: product.categoryId?._id || product.categoryId,
           shopId: product.shopId?._id || product.shopId,
         };
@@ -77,11 +73,28 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const stockCount = product.stock;
+
   return (
     <>
-      <div className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:border-(--color-primary)/50 transition-all group relative">
+      <div
+        onClick={handleInfoClick}
+        className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:border-(--color-primary)/50 transition-all group relative cursor-pointer"
+      >
         <div>
           <div className="w-full h-36 bg-(--color-base-300)/50 rounded-xl overflow-hidden mb-3.5 relative flex items-center justify-center">
+            {stockCount && (
+              <div
+                className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold text-white shadow-sm ${
+                  Number(stockCount) < 3
+                    ? 'bg-(--color-error) animate-pulse'
+                    : 'bg-(--color-primary) backdrop-blur-sm'
+                }`}
+              >
+                Stock: {stockCount}
+              </div>
+            )}
+
             {product.image ? (
               <img
                 src={product.image}
@@ -97,27 +110,17 @@ const ProductCard = ({ product }) => {
               </div>
             )}
           </div>
-          {/* Product Name & Info Button */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug">
-                {product.name}
-              </h3>
 
-              {product.note && (
-                <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5">
-                  &quot;{product.note}&quot;
-                </p>
-              )}
-            </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug">
+              {product.name}
+            </h3>
 
-            <button
-              onClick={handleInfoClick}
-              className="p-2 rounded-xl bg-(--color-primary)/10 hover:bg-(--color-primary) text-(--color-primary) hover:text-(--color-base-100) transition-all cursor-pointer disabled:opacity-50 shrink-0"
-              title="Product info"
-            >
-              <Info size={16} />
-            </button>
+            {product.note && (
+              <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5">
+                &quot;{product.note}&quot;
+              </p>
+            )}
           </div>
         </div>
 
@@ -141,7 +144,6 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      {/* Product Details Modal */}
       <ProductDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -150,7 +152,6 @@ const ProductCard = ({ product }) => {
         onSaveEdit={handleEditClickFromModal}
       />
 
-      {/* Access Key Modal for Delete/Edit */}
       <AccessKeyModal
         isOpen={isAccessModalOpen}
         onClose={() => {
@@ -160,7 +161,9 @@ const ProductCard = ({ product }) => {
         }}
         onVerify={handleVerifyAccess}
         title={modalType === 'delete' ? 'Delete Product' : 'Update Product'}
-        subtitle={`Enter your access key to ${modalType === 'delete' ? 'delete this product' : 'save changes'}`}
+        subtitle={`Enter your access key to ${
+          modalType === 'delete' ? 'delete this product' : 'save changes'
+        }`}
       />
     </>
   );

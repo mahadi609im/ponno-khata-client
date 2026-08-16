@@ -1,10 +1,24 @@
 import { Package } from 'lucide-react';
 
 const AllProductCard = ({ product }) => {
+  const stockCount = product.stock;
+
   return (
     <div className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:border-(--color-primary)/50 transition-all group relative">
       <div>
         <div className="w-full h-36 bg-(--color-base-300)/50 rounded-xl overflow-hidden mb-3.5 relative flex items-center justify-center">
+          {stockCount && (
+            <div
+              className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold text-white shadow-sm ${
+                Number(stockCount) < 3
+                  ? 'bg-(--color-error) animate-pulse'
+                  : 'bg-(--color-primary) backdrop-blur-sm'
+              }`}
+            >
+              Stock: {stockCount}
+            </div>
+          )}
+
           {product.image ? (
             <img
               src={product.image}
@@ -21,10 +35,16 @@ const AllProductCard = ({ product }) => {
           )}
         </div>
 
-        <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1">
           <h3 className="font-medium text-sm md:text-base text-(--color-base-content) line-clamp-1 leading-snug min-w-0 flex-1">
             {product.name}
           </h3>
+
+          {product.note && (
+            <p className="text-xs text-(--color-text-muted) italic truncate mt-0.5">
+              &quot;{product.note}&quot;
+            </p>
+          )}
         </div>
       </div>
 

@@ -25,9 +25,18 @@ const AllProducts = () => {
 
   const filteredGroups = groupedProducts
     .map(group => {
-      const matchedProducts = group.products.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
+      const query = searchQuery.toLowerCase().trim();
+
+      const isCategoryMatch = group.category?.name
+        ?.toLowerCase()
+        .includes(query);
+
+      const matchedProducts = isCategoryMatch
+        ? group.products
+        : group.products.filter(product =>
+            product.name.toLowerCase().includes(query),
+          );
+
       return {
         ...group,
         products: matchedProducts,

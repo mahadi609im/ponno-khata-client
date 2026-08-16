@@ -10,6 +10,9 @@ import {
   Tag,
   TrendingUp,
   PlusCircle,
+  Plus,
+  Minus,
+  Layers,
 } from 'lucide-react';
 
 const ProductDetailsModal = ({
@@ -27,6 +30,7 @@ const ProductDetailsModal = ({
     buyPrice: '',
     minSellPrice: '',
     maxSellPrice: '',
+    stock: '',
     note: '',
   });
 
@@ -38,6 +42,7 @@ const ProductDetailsModal = ({
         buyPrice: product.buyPrice || '',
         minSellPrice: product.minSellPrice || '',
         maxSellPrice: product.maxSellPrice || '',
+        stock: product.stock || '',
         note: product.note || '',
       });
       setIsEditing(false);
@@ -51,12 +56,23 @@ const ProductDetailsModal = ({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleStockChange = delta => {
+    setFormData(prev => {
+      const currentStock = prev.stock === '' ? 1 : Number(prev.stock) || 1;
+      const updatedStock = Math.max(1, currentStock + delta);
+      return { ...prev, stock: updatedStock };
+    });
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
     if (onSaveEdit) {
-      onSaveEdit(formData); // প্যারেন্টে ডেটা পাঠিয়ে মডাল হ্যান্ডেল করবে
+      onSaveEdit(formData);
+      console.log('Frontend FormData before submit:', formData);
     }
   };
+
+  const stockCount = currentProduct.stock;
 
   return createPortal(
     <AnimatePresence>
@@ -88,6 +104,20 @@ const ProductDetailsModal = ({
               </div>
             )}
 
+            {/* স্টক ব্যাজটি ইমেজের ওপর ফুটিয়ে তোলার জন্য */}
+            {stockCount && (
+              <div
+                className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-lg text-xs font-bold text-white shadow-md flex items-center gap-1.5 backdrop-blur-md ${
+                  Number(stockCount) < 3
+                    ? 'bg-(--color-error)/90 animate-pulse'
+                    : 'bg-black/60 border border-white/20'
+                }`}
+              >
+                <Layers size={13} />
+                <span>Stock: {stockCount}</span>
+              </div>
+            )}
+
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -100,9 +130,9 @@ const ProductDetailsModal = ({
           {/* Content Body */}
           <div className="p-4.5">
             {isEditing ? (
-              <form onSubmit={handleSubmit} className="space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-2.5">
                 <div>
-                  <label className="block text-[11px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
                     Product Name
                   </label>
                   <input
@@ -111,11 +141,11 @@ const ProductDetailsModal = ({
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full h-9 px-3 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-lg text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
+                    className="w-full h-8 px-2.5 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   <div>
                     <label className="block text-[10px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
                       Buy
@@ -127,7 +157,7 @@ const ProductDetailsModal = ({
                       value={formData.buyPrice}
                       onChange={handleChange}
                       required
-                      className="w-full h-9 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-lg text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
+                      className="w-full h-8 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
                     />
                   </div>
 
@@ -142,7 +172,7 @@ const ProductDetailsModal = ({
                       value={formData.minSellPrice}
                       onChange={handleChange}
                       required
-                      className="w-full h-9 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-lg text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
+                      className="w-full h-8 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
                     />
                   </div>
 
@@ -157,40 +187,82 @@ const ProductDetailsModal = ({
                       value={formData.maxSellPrice}
                       onChange={handleChange}
                       required
-                      className="w-full h-9 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-lg text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
+                      className="w-full h-8 px-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
+                    Stock Quantity
+                  </label>
+                  <div className="flex items-center justify-between bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md px-1.5 h-8">
+                    <button
+                      type="button"
+                      onClick={() => handleStockChange(-1)}
+                      className="w-5 h-5 rounded bg-(--color-base-200) hover:bg-(--color-base-300) flex items-center justify-center text-(--color-base-content) transition-colors cursor-pointer"
+                    >
+                      <Minus size={11} />
+                    </button>
+
+                    <input
+                      type="number"
+                      name="stock"
+                      min="1"
+                      value={formData.stock}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '') {
+                          setFormData(prev => ({ ...prev, stock: '' }));
+                          return;
+                        }
+                        const num = Number(val);
+                        if (num < 1) return;
+                        handleChange(e);
+                      }}
+                      placeholder="1"
+                      className="w-16 text-center text-xs bg-transparent text-(--color-base-content) outline-none font-bold"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => handleStockChange(1)}
+                      className="w-5 h-5 rounded bg-(--color-base-200) hover:bg-(--color-base-300) flex items-center justify-center text-(--color-base-content) transition-colors cursor-pointer"
+                    >
+                      <Plus size={11} />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-semibold text-(--color-text-muted) uppercase tracking-wider mb-1">
                     Note
                   </label>
-                  <textarea
+                  <input
+                    type="text"
                     name="note"
-                    rows="2"
                     value={formData.note}
                     onChange={handleChange}
-                    placeholder="Add a note here..."
-                    className="w-full p-2.5 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-lg text-(--color-base-content) outline-none focus:border-(--color-primary) resize-none font-medium"
+                    placeholder="Add a short note..."
+                    className="w-full h-8 px-2.5 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-md text-(--color-base-content) outline-none focus:border-(--color-primary) font-medium"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-1">
+                <div className="flex items-center justify-end gap-1.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="px-3.5 h-8 bg-(--color-base-200) text-(--color-base-content) text-xs font-medium rounded-lg hover:opacity-80 transition-all cursor-pointer"
+                    className="px-3 h-7 bg-(--color-base-200) text-(--color-base-content) text-xs font-medium rounded-md hover:opacity-80 transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
 
                   <button
                     type="submit"
-                    className="px-4 h-8 bg-(--color-primary) text-white text-xs font-medium rounded-lg hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                    className="px-3.5 h-7 bg-(--color-primary) text-white text-xs font-medium rounded-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1 shadow-xs"
                   >
-                    <Check size={13} />
-                    Save Changes
+                    <Check size={12} />
+                    Save
                   </button>
                 </div>
               </form>

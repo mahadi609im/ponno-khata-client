@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ImagePlus, Check, Plus, Loader2 } from 'lucide-react';
+import {
+  X,
+  ImagePlus,
+  Check,
+  Plus,
+  Loader2,
+  Layers,
+  Minus,
+} from 'lucide-react';
 import { useCreateProduct } from '../api/useProductHandle';
 import AccessKeyModal from './AccessKeyModal';
 
@@ -17,8 +25,8 @@ const AddProductModal = ({
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [stock, setStock] = useState(1);
 
-  // অ্যাক্সেস কি ভেরিফিকেশনের জন্য স্টেট
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [pendingFormEvent, setPendingFormEvent] = useState(null);
 
@@ -32,18 +40,20 @@ const AddProductModal = ({
     }
   };
 
-  // ১. সেভ বাটনে ক্লিক করলে সরাসরি সাবমিট না হয়ে এক্সেস কি মডাল ওপেন করবে
-  const handleInitialSubmit = e => {
-    e.preventDefault();
-    setPendingFormEvent(e); // ফর্ম ইভেন্ট সেভ করে রাখছি
-    setIsAccessModalOpen(true); // কাস্টম কি মডাল ওপেন হবে
+  const handleStockChange = delta => {
+    setStock(prev => Math.max(1, (Number(prev) || 1) + delta));
   };
 
-  // ২. আপনার AccessKeyModal এর onVerify প্রপস অনুযায়ী এটি async ফাংশন হবে
+  const handleInitialSubmit = e => {
+    e.preventDefault();
+    setPendingFormEvent(e);
+    setIsAccessModalOpen(true);
+  };
+
   const handleVerifyAndSubmit = async accessKeyInput => {
     if (accessKeyInput !== shop?.key) {
       alert('Invalid Access Key');
-      return false; // ভুল হলে false রিটার্ন করবে, মডাল খোলা থাকবে
+      return false;
     }
 
     if (!pendingFormEvent) return false;
@@ -61,7 +71,12 @@ const AddProductModal = ({
       formData.append('minSellPrice', Number(form.minSellPrice.value));
       formData.append('maxSellPrice', Number(form.maxSellPrice.value));
 
-      // Image optional
+      // এখানে সরাসরি স্টেট বা ইনপুটের ভ্যালু নিশ্চিত করে পাঠানো হচ্ছে
+      const finalStock = stock === '' ? 1 : Number(stock);
+      formData.append('stock', finalStock);
+
+      formData.append('note', form.note.value);
+
       if (imageFile) {
         formData.append('image', imageFile);
       }
@@ -71,8 +86,9 @@ const AddProductModal = ({
       form.reset();
       setImageFile(null);
       setImagePreview(null);
-      onClose(); // প্রোডাক্ট মডাল বন্ধ হয়ে যাবে
-      return true; // সফলভাবে সেভ হলে true রিটার্ন করবে, মডাল বন্ধ হয়ে যাবে
+      setStock(1);
+      onClose();
+      return true;
     } catch (error) {
       console.error(
         'Error adding product:',
@@ -90,29 +106,29 @@ const AddProductModal = ({
   return (
     <>
       <AnimatePresence>
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--color-base-100)/50 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 overflow-y-auto">
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 15 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 15 }}
-            className="bg-(--color-base-100) border border-(--color-border-light) rounded-3xl w-full max-w-lg p-6 md:p-7 shadow-2xl relative my-auto overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="bg-(--color-base-100) border border-(--color-border-light) rounded-2xl w-full max-w-md p-5 shadow-xl relative my-auto overflow-hidden"
           >
-            {/* Top Glow Accent */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-(--color-primary) to-(--color-secondary,var(--color-primary))" />
+            {/* Minimal Top Line Accent */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-(--color-primary)" />
 
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-(--color-border-light)">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-(--color-primary)/10 text-(--color-primary) flex items-center justify-center">
-                  <Plus size={20} />
+            <div className="flex items-center justify-between pb-3 border-b border-(--color-border-light)/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-(--color-primary)/10 text-(--color-primary) flex items-center justify-center">
+                  <Plus size={18} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-(--color-base-content)">
+                  <h3 className="text-sm font-bold text-(--color-base-content)">
                     Add New Product
                   </h3>
-                  <p className="text-xs text-(--color-base-content)/60 mt-0.5">
-                    Target Category:{' '}
-                    <span className="font-semibold text-(--color-primary)">
+                  <p className="text-[11px] text-(--color-base-content)/60">
+                    Category:{' '}
+                    <span className="font-medium text-(--color-primary)">
                       {currentCategoryObj?.name || 'General'}
                     </span>
                   </p>
@@ -120,36 +136,78 @@ const AddProductModal = ({
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl bg-(--color-base-300)/50 hover:bg-(--color-base-300) text-(--color-base-content) transition-all cursor-pointer"
+                className="p-1.5 rounded-lg bg-(--color-base-200) hover:bg-(--color-base-300) text-(--color-base-content)/70 hover:text-(--color-base-content) transition-all cursor-pointer"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleInitialSubmit} className="space-y-4 pt-5">
-              {/* Product Name */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-(--color-base-content)/70 mb-1.5">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  placeholder="e.g. Organic Honey 500g"
-                  className="w-full px-4 py-3 text-sm bg-(--color-base-200)/70 border border-(--color-border-light) rounded-2xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all font-medium"
-                />
+            <form onSubmit={handleInitialSubmit} className="space-y-3 pt-3">
+              {/* Product Name & Stock (Inline Row) */}
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
+                    Product Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="e.g. Organic Honey 500g"
+                    className="w-full px-3 py-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all"
+                  />
+                </div>
+                <div className="w-28 shrink-0">
+                  <label className="text-[11px] font-semibold text-(--color-base-content)/70 mb-1 flex items-center gap-1">
+                    <Layers size={11} /> Stock
+                  </label>
+                  <div className="flex items-center justify-between bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl px-1 h-8.5">
+                    <button
+                      type="button"
+                      onClick={() => handleStockChange(-1)}
+                      className="w-6 h-6 rounded-lg bg-(--color-base-200) hover:bg-(--color-base-300) flex items-center justify-center text-(--color-base-content) transition-colors cursor-pointer shrink-0"
+                    >
+                      <Minus size={11} />
+                    </button>
+
+                    <input
+                      type="number"
+                      name="stock"
+                      min="1"
+                      value={stock}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '') {
+                          setStock('');
+                          return;
+                        }
+                        setStock(Number(val));
+                      }}
+                      required
+                      className="flex-1 w-full text-center text-xs bg-transparent text-(--color-base-content) outline-none font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => handleStockChange(1)}
+                      className="w-6 h-6 rounded-lg bg-(--color-base-200) hover:bg-(--color-base-300) flex items-center justify-center text-(--color-base-content) transition-colors cursor-pointer shrink-0"
+                    >
+                      <Plus size={11} />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Image Upload Box */}
+              {/* Image Upload Box (Compact) */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-(--color-base-content)/70 mb-1.5">
-                  Product Image
+                <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
+                  Product Image{' '}
+                  <span className="text-[10px] opacity-60">(Optional)</span>
                 </label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   {imagePreview ? (
-                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-(--color-border-light) shadow-sm shrink-0">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-(--color-border-light) shrink-0">
                       <img
                         src={imagePreview}
                         alt="Preview"
@@ -161,22 +219,22 @@ const AddProductModal = ({
                           setImageFile(null);
                           setImagePreview(null);
                         }}
-                        className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-full text-xs hover:bg-black"
+                        className="absolute top-0.5 right-0.5 bg-black/70 text-white p-0.5 rounded-full text-[10px]"
                       >
-                        <X size={12} />
+                        <X size={10} />
                       </button>
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded-2xl bg-(--color-base-200) border border-dashed border-(--color-border-light) flex items-center justify-center text-(--color-base-content)/40 shrink-0">
-                      <ImagePlus size={22} />
+                    <div className="w-12 h-12 rounded-xl bg-(--color-base-200)/60 border border-dashed border-(--color-border-light) flex items-center justify-center text-(--color-base-content)/40 shrink-0">
+                      <ImagePlus size={18} />
                     </div>
                   )}
 
-                  <label className="flex-1 flex items-center justify-between px-4 py-3 border border-dashed border-(--color-border-light) hover:border-(--color-primary) rounded-2xl bg-(--color-base-200)/40 hover:bg-(--color-primary)/5 cursor-pointer transition-all">
-                    <span className="text-xs font-medium text-(--color-base-content)/80">
-                      {imageFile ? imageFile.name : 'Upload product image...'}
+                  <label className="flex-1 flex items-center justify-between px-3 py-2 border border-dashed border-(--color-border-light) hover:border-(--color-primary) rounded-xl bg-(--color-base-200)/30 hover:bg-(--color-primary)/5 cursor-pointer transition-all text-xs">
+                    <span className="truncate text-(--color-base-content)/70 max-w-40">
+                      {imageFile ? imageFile.name : 'Choose image...'}
                     </span>
-                    <span className="px-3 py-1.5 bg-(--color-primary)/10 text-(--color-primary) text-xs font-bold rounded-xl">
+                    <span className="px-2 py-1 bg-(--color-primary)/10 text-(--color-primary) text-[10px] font-bold rounded-lg">
                       Browse
                     </span>
                     <input
@@ -189,10 +247,10 @@ const AddProductModal = ({
                 </div>
               </div>
 
-              {/* Pricing Section (3 Grid) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Pricing Grid (3 Column Compact) */}
+              <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-(--color-base-content)/70 mb-1.5">
+                  <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
                     Buy Price
                   </label>
                   <input
@@ -201,13 +259,13 @@ const AddProductModal = ({
                     name="buyPrice"
                     required
                     placeholder="0.00"
-                    className="w-full px-3.5 py-3 text-sm bg-(--color-base-200)/70 border border-(--color-border-light) rounded-2xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all font-medium"
+                    className="w-full px-2.5 py-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-(--color-base-content)/70 mb-1.5">
-                    Min Sell Price
+                  <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
+                    Min Sell
                   </label>
                   <input
                     type="number"
@@ -215,13 +273,13 @@ const AddProductModal = ({
                     name="minSellPrice"
                     required
                     placeholder="0.00"
-                    className="w-full px-3.5 py-3 text-sm bg-(--color-base-200)/70 border border-(--color-border-light) rounded-2xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all font-medium"
+                    className="w-full px-2.5 py-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-(--color-base-content)/70 mb-1.5">
-                    Max Sell Price
+                  <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
+                    Max Sell
                   </label>
                   <input
                     type="number"
@@ -229,31 +287,45 @@ const AddProductModal = ({
                     name="maxSellPrice"
                     required
                     placeholder="0.00"
-                    className="w-full px-3.5 py-3 text-sm bg-(--color-base-200)/70 border border-(--color-border-light) rounded-2xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all font-medium"
+                    className="w-full px-2.5 py-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all"
                   />
                 </div>
               </div>
 
+              {/* Note Field */}
+              <div>
+                <label className="block text-[11px] font-semibold text-(--color-base-content)/70 mb-1">
+                  Note{' '}
+                  <span className="text-[10px] opacity-60">(Optional)</span>
+                </label>
+                <textarea
+                  name="note"
+                  rows="2"
+                  placeholder="Add details..."
+                  className="w-full px-3 py-2 text-xs bg-(--color-base-200)/50 border border-(--color-border-light) rounded-xl text-(--color-base-content) focus:outline-none focus:border-(--color-primary) transition-all resize-none"
+                />
+              </div>
+
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-5 border-t border-(--color-border-light) mt-5">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-(--color-border-light)/60 mt-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-(--color-base-300)/50 hover:bg-(--color-base-300) rounded-2xl text-(--color-base-content) transition-colors cursor-pointer"
+                  className="px-4 py-2 text-[11px] font-bold uppercase tracking-wide bg-(--color-base-200) hover:bg-(--color-base-300) rounded-xl text-(--color-base-content)/80 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-(--color-primary) hover:opacity-95 text-white rounded-2xl transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-(--color-primary)/20 disabled:opacity-50"
+                  className="px-5 py-2 text-[11px] font-bold uppercase tracking-wide bg-(--color-primary) hover:opacity-95 text-white rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
                 >
                   {loading ? (
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={14} className="animate-spin" />
                   ) : (
-                    <Check size={16} />
+                    <Check size={14} />
                   )}
-                  {loading ? 'Saving...' : 'Save Product'}
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
@@ -261,7 +333,6 @@ const AddProductModal = ({
         </div>
       </AnimatePresence>
 
-      {/* --- AccessKeyModal কম্পোনেন্ট কল করা হলো --- */}
       <AccessKeyModal
         isOpen={isAccessModalOpen}
         onClose={() => {
