@@ -50,17 +50,13 @@ const AllProductCard = ({ product }) => {
 
       <div className="mt-4 pt-3 border-t border-(--color-border-light) space-y-2">
         <div className="flex justify-between items-center text-xs md:text-sm">
-          <span className="text-(--color-text-muted) font-normal">
-            Buy Price:
-          </span>
+          <span className="text-(--color-text-muted) font-normal">Buy :</span>
           <span className="font-medium text-(--color-base-content)">
             ৳{product.buyPrice}
           </span>
         </div>
         <div className="flex justify-between items-center text-xs md:text-sm">
-          <span className="text-(--color-text-muted) font-normal">
-            Sell Range:
-          </span>
+          <span className="text-(--color-text-muted) font-normal">Sell :</span>
           <span className="font-medium text-(--color-primary)">
             ৳{product.minSellPrice} - ৳{product.maxSellPrice}
           </span>

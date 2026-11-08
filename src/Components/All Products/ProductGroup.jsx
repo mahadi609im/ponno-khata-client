@@ -31,7 +31,7 @@ const ProductGroup = ({ item, viewMode, onManage }) => {
 
       {/* Products Display */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {item.products.map(product => (
             <AllProductCard key={product._id} product={product} />
           ))}

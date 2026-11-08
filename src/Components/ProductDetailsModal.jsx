@@ -293,7 +293,7 @@ const ProductDetailsModal = ({
                 <div className="flex flex-col gap-2 bg-(--color-base-200)/40 p-3 rounded-lg border border-(--color-border-light)">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-(--color-text-muted) flex items-center gap-1.5">
-                      <Tag size={12} /> Buy Price
+                      <Tag size={12} /> Buy
                     </span>
                     <span className="text-xs font-bold text-(--color-base-content)">
                       ৳{currentProduct.buyPrice}
@@ -302,7 +302,7 @@ const ProductDetailsModal = ({
 
                   <div className="flex items-center justify-between pt-2 border-t border-(--color-border-light)/60">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-(--color-text-muted) flex items-center gap-1.5">
-                      <TrendingUp size={12} /> Sell Range
+                      <TrendingUp size={12} /> Sell
                     </span>
                     <span className="text-xs font-bold text-(--color-primary)">
                       ৳{currentProduct.minSellPrice} - ৳
