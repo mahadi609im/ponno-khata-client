@@ -7,10 +7,13 @@ import {
   useUpdateCategory,
 } from '../api/useCategoryHandle';
 import { useGroupedProducts } from '../api/useProductHandle';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Context = createContext();
 
 const ContextProvider = ({ children }) => {
+  const queryClient = useQueryClient();
+
   // --- Theme ---
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
@@ -37,6 +40,11 @@ const ContextProvider = ({ children }) => {
       localStorage.removeItem('current_shop');
     }
   }, [shop]);
+
+  // NEW: shop logout হলে আগের shop-এর cached data মুছে ফেলুন
+  useEffect(() => {
+    if (!shop) queryClient.clear();
+  }, [shop, queryClient]);
 
   const [loading, setLoading] = useState(false);
 
