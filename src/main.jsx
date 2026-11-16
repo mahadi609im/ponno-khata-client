@@ -23,13 +23,27 @@ const queryClient = new QueryClient({
 const persister = createAsyncStoragePersister({
   storage: window.localStorage,
   key: 'ponno-khata-cache',
+  throttleTime: 5000, // NEW: save at most once every 5 seconds
 });
+
+// NEW: save only the main data, not duplicate product lists
+const PERSISTED_KEYS = ['grouped-products', 'categories'];
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister, maxAge: ONE_DAY, buster: 'v1' }}
+      persistOptions={{
+        persister,
+        maxAge: ONE_DAY,
+        buster: 'v2', // NEW: clears the old big cache for all users
+        dehydrateOptions: {
+          // NEW: filter what goes into localStorage
+          shouldDehydrateQuery: query =>
+            query.state.status === 'success' &&
+            PERSISTED_KEYS.includes(query.queryKey[0]),
+        },
+      }}
     >
       <ContextProvider>
         <RouterProvider router={router} />
